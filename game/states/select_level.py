@@ -2,8 +2,8 @@ import os
 import pygame
 import pygame_gui
 from pygame_gui.elements.ui_button import UIButton
-from states.base_game_state import BaseGameState
-from states.game_state_manager import GameStateManager
+from .base_game_state import BaseGameState
+from .game_state_manager import GameStateManager
 
 
 class SelectLevel(BaseGameState):

@@ -13,20 +13,9 @@
 		}
 	},
 
-	"world_space_health_bar": {
-		"colours": {
-			"normal_border": "#F0F0F0A0",
-			"unfilled_bar": "#50505080",
-			"filled_bar": "#f4251b"
-		},
-		"misc": {
-			"border_width": "1"
-		}
-	},
-
 	"#game_title": {
 		"colours": {
-			"normal_text": "#000000",
+			"normal_text": "#84612e",
 			"dark_bg": "#FFFFFF00"
 		},
 		"font": {
@@ -55,18 +44,6 @@
 		}
 	},
 
-	"#game_sub_title": {
-		"colours": {
-			"normal_text": "#000000",
-			"dark_bg": "#FFFFFF00"
-		},
-		"font": {
-			"name": "londrina_shadow",
-			"size": "50",
-			"regular_path": "data/fonts/LondrinaShadow-Regular.ttf"
-		}
-	},
-
 	"#wave_number": {
 		"colours": {
 			"normal_text": "#FFFFFF",
@@ -74,6 +51,46 @@
 		},
 		"font": {
 			"size": "40"
+		}
+	},
+	"#health_label": {
+		"colours": {
+			"normal_text": "#FFFFFF",
+			"dark_bg": "#FFFFFF00"
+		},
+		"font": {
+			"size": "30"
+		}
+	},
+	"#health_status": {
+		"colours": {
+			"filled_bar": "#255212"
+		},
+		"font": {
+			"size": "30"
+		}	,
+		"misc": {
+			"shape" : "rounded_rectangle",
+			"shape_corner_radius": "10"
+		}
+	},
+	"#turret_button": {
+		"colours": {
+			"normal_bg": "#FFFFFF00",
+			"hovered_bg": "#FFFFFF00",
+			"active_bg": "#FFFFFF11"
+		},
+		"images": {
+			"normal_image": {
+				"path": "data/images/turret.png"
+			},
+			"hovered_image": {
+				"path": "data/images/turret.png"
+			}
+		},
+		"misc": {
+			"shape" : "rounded_rectangle",
+			"shape_corner_radius": "10"
 		}
 	},
 	"#screen_text": {

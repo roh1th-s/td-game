@@ -7,7 +7,7 @@ if __name__ == "__main__":
   pygame.display.set_caption("Tower defense :)")
 
   # import here so display.set_mode runs before other code
-  from game import Game
+  from game.game import Game
   game = Game(screen)
   game.run()
 

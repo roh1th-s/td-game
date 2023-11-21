@@ -2,7 +2,7 @@ import copy
 import pygame
 import typing
 
-from states.base_game_state import BaseGameState
+from .base_game_state import BaseGameState
 
 
 class GameStateManager:

@@ -4,10 +4,10 @@ from enum import Enum
 
 from pygame_gui import UIManager
 
-from states.game_state_manager import GameStateManager
-from states.main_menu import MainMenu
-from states.game_state import GameState
-from states.select_level import SelectLevel
+from .states.game_state_manager import GameStateManager
+from .states.main_menu import MainMenu
+from .states.game_state import GameState
+from .states.select_level import SelectLevel
 
 
 class Game:
