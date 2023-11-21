@@ -7,12 +7,12 @@ from states.game_state_manager import GameStateManager
 
 
 class SelectLevel(BaseGameState):
-  def __init__(self, state_manager: GameStateManager, ui_manager: pygame_gui.UIManager) -> None:
+  def __init__(self, state_manager: GameStateManager, game) -> None:
     super().__init__('select_level', 'game', state_manager)
 
-    self.ui_manager = ui_manager
+    self.ui_manager = game.ui_manager
     self.bg_image = pygame.transform.scale(pygame.image.load(
-        os.path.join("data", "images", "bg.jpg")).convert(), ui_manager.window_resolution)
+        os.path.join("data", "images", "bg.jpg")).convert(), game.screen.get_size())
     self.level1_btn = None
 
   def start(self):

@@ -67,6 +67,15 @@
 		}
 	},
 
+	"#wave_number": {
+		"colours": {
+			"normal_text": "#FFFFFF",
+			"dark_bg": "#FFFFFF00"
+		},
+		"font": {
+			"size": "40"
+		}
+	},
 	"#screen_text": {
 		"colours": {
 			"normal_text": "#FFFFFF",

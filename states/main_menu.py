@@ -10,11 +10,11 @@ from states.game_state_manager import GameStateManager
 
 
 class MainMenu(BaseGameState):
-  def __init__(self, state_manager: GameStateManager, ui_manager: pygame_gui.UIManager) -> None:
+  def __init__(self, state_manager: GameStateManager, game) -> None:
     super().__init__('main_menu', 'select_level', state_manager)
     print("Main menu")
 
-    self.ui_manager = ui_manager
+    self.ui_manager = game.ui_manager
     self.bg_image = None
     self.title_label = None
     self.play_btn = None
@@ -22,7 +22,7 @@ class MainMenu(BaseGameState):
   def start(self):
     self.bg_image = pygame.transform.scale(pygame.image.load(
         os.path.join("data", "images", "bg.jpg")).convert(), self.ui_manager.window_resolution)
-    self.title_label = UILabel(pygame.Rect((0, -150), (850, 180)), text="TDM GAME",
+    self.title_label = UILabel(pygame.Rect((0, -150), (850, 180)), text="TD GAME",
                                manager=self.ui_manager, object_id="#game_title", anchors={"center": "center"})
     self.play_game_button = UIButton(pygame.Rect((0, 70), (200, 70)),
                                      text="Start Game", manager=self.ui_manager, object_id="@start_button",

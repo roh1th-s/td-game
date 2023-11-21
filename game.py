@@ -17,7 +17,10 @@ class Game:
     self.ui_manager.preload_fonts([{'name': 'fira_code', 'point_size': 10, 'style': 'bold'},
                                    {'name': 'fira_code', 'point_size': 10, 'style': 'regular'},
                                    {'name': 'fira_code', 'point_size': 14, 'style': 'bold'}])
-    
+       
+    assert screen != None
+    self.screen = screen
+
     self.state_manager = GameStateManager(
         {
             "main_menu": MainMenu,
@@ -25,11 +28,9 @@ class Game:
             "game": GameState
         },
         "main_menu",
-        self.ui_manager
+        self
     )
 
-    assert screen != None
-    self.screen = screen
 
   def run(self):
     clock = pygame.time.Clock()

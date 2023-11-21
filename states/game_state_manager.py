@@ -2,20 +2,17 @@ import copy
 import pygame
 import typing
 
-import pygame_gui
-
 from states.base_game_state import BaseGameState
 
 
 class GameStateManager:
-
-  def __init__(self, game_states: typing.Dict[str, typing.Type[BaseGameState]], initial_state: str, ui_manager: pygame_gui.UIManager):
+  def __init__(self, game_states: typing.Dict[str, typing.Type[BaseGameState]], initial_state: str, game):
     self.states: typing.Dict[str, typing.Type[BaseGameState]] = {}
     self.active_state: BaseGameState = None
 
     for state_name in game_states:
       # create an object of game_state class
-      state = game_states[state_name](self, ui_manager)
+      state = game_states[state_name](self, game)
       self.states[state_name] = state
 
       if state_name == initial_state:
