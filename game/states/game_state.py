@@ -20,9 +20,11 @@ class GameState(BaseGameState):
     # ui
     self.map_img = pygame.transform.scale(pygame.image.load(
         os.path.join("data", "images", "level1.jpeg")), (720, 720)).convert()
-
+    self.turret_img = pygame.transform.scale(pygame.image.load(
+        os.path.join("data", "images", "turret.png")), (80, 80)).convert_alpha()
+    
     self.wave_label = None
-    self.health_label = None
+    self.health_label = None  
     self.health_status_bar = None
     self.turret_button = None
     self.lose_message_label = None
@@ -67,11 +69,8 @@ class GameState(BaseGameState):
       self.ui_manager.process_events(event)
 
       if event.type == pygame_gui.UI_BUTTON_PRESSED:
-        if "#gun_turret_button" in event.ui_object_id:
-          if self.turret_costs.gun <= self.player_resources.current_cash:
-            new_turret = GunTurret(pygame.mouse.get_pos(), self.turret_costs.gun,
-                                   self.explosions_sprite_sheet,
-                                   self.image_atlas, self.collision_grid)
+        if "#turret_button" in event.ui_object_id:
+            new_turret = GunTurret(pygame.mouse.get_pos(), self.turret_img)
             self.mouse_active_turret = new_turret
             self.turrets.append(new_turret)
 
