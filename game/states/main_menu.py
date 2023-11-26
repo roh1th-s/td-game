@@ -42,7 +42,7 @@ class MainMenu(BaseGameState):
           self.set_target_state_name('select_level')
           self.trigger_transition()
 
-    self.ui_manager.update(dt/1000)
+    self.ui_manager.update(dt)
 
     screen.blit(self.bg_image, (0, 0))
 

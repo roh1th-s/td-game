@@ -1,13 +1,12 @@
 import copy
 import pygame
-import typing
-
+from typing import Dict, Type
 from .base_game_state import BaseGameState
 
 
 class GameStateManager:
-  def __init__(self, game_states: typing.Dict[str, typing.Type[BaseGameState]], initial_state: str, game):
-    self.states: typing.Dict[str, typing.Type[BaseGameState]] = {}
+  def __init__(self, game_states: Dict[str, Type[BaseGameState]], initial_state: str, game):
+    self.states: Dict[str, Type[BaseGameState]] = {}
     self.active_state: BaseGameState = None
 
     for state_name in game_states:
@@ -20,13 +19,13 @@ class GameStateManager:
         # start the initial state
         self.active_state.start()
 
-  def run(self, screen: pygame.Surface, dt: float):
+  def run(self, screen: pygame.Surface, dt: int):
     quit_event = pygame.event.get(pygame.QUIT)
     if quit_event:
       return False
-    
+
     if self.active_state is not None:
-      self.active_state.run(screen, dt)
+      self.active_state.run(screen, dt / 1000)  # pass delta time in seconds
 
       if self.active_state.time_to_transition:
         self.active_state.time_to_transition = False

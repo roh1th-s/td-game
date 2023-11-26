@@ -17,7 +17,7 @@ class Game:
     self.ui_manager.preload_fonts([{'name': 'fira_code', 'point_size': 10, 'style': 'bold'},
                                    {'name': 'fira_code', 'point_size': 10, 'style': 'regular'},
                                    {'name': 'fira_code', 'point_size': 14, 'style': 'bold'}])
-       
+
     assert screen != None
     self.screen = screen
 
@@ -31,14 +31,13 @@ class Game:
         self
     )
 
-
   def run(self):
     clock = pygame.time.Clock()
     dt = 0
 
     while self.running:
       dt = clock.tick(60)
-      
+
       self.running = self.state_manager.run(self.screen, dt)
 
       pygame.display.update()

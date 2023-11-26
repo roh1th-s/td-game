@@ -1,7 +1,7 @@
 import pygame
 
 if __name__ == "__main__":
-  # init 
+  # init
   pygame.init()
   screen = pygame.display.set_mode((1280, 720))
   pygame.display.set_caption("Tower defense :)")
