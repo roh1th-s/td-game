@@ -22,7 +22,7 @@ class MainMenu(BaseGameState):
   def start(self):
     self.bg_image = pygame.transform.scale(pygame.image.load(
         os.path.join("data", "images", "bg.jpg")).convert(), self.ui_manager.window_resolution)
-    self.title_label = UILabel(pygame.Rect((0, -150), (850, 180)), text="Tower Defense",
+    self.title_label = UILabel(pygame.Rect((0, -150), (850, 180)), text="Guardians Of The Realm",
                                manager=self.ui_manager, object_id="#game_title", anchors={"center": "center"})
     self.play_game_button = UIButton(pygame.Rect((0, 90), (200, 70)),
                                      text="Start Game", manager=self.ui_manager, object_id="@start_button",
