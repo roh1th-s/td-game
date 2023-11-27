@@ -31,12 +31,12 @@ class GameState(BaseGameState):
     self.map_img = pygame.transform.scale(pygame.image.load(
         os.path.join("data", "images", "level1.jpeg")), (720, 720)).convert()
     self.turret_img = pygame.transform.scale(pygame.image.load(
-        os.path.join("data", "images", "turret.png")), (80, 80)).convert_alpha()
+        os.path.join("data", "images", "turret.png")), (50, 50)).convert_alpha()
     self.base_img = pygame.transform.scale_by(pygame.image.load(
         os.path.join("data", "images", "base.png")), 2).convert_alpha()
     self.enemy_img = pygame.transform.scale_by(pygame.image.load(
         os.path.join("data", "images", "enemy.png")), 2).convert_alpha()
-    
+
     self.bullet_img = pygame.Surface((30, 30))
     self.bullet_img.fill((0, 0, 0))
     self.bullet_img.set_colorkey((0, 0, 0))
@@ -71,7 +71,7 @@ class GameState(BaseGameState):
 
   def start(self):
     print("In game")
-    self.wave_label = UILabel(pygame.Rect((10, 0), (200, 50)), text="Wave 1/5",
+    self.wave_label = UILabel(pygame.Rect((10, 0), (250, 50)), text="Game starting...",
                               manager=self.ui_manager, object_id="#wave_number")
 
     health_label_rect = pygame.Rect((0, 0), (200, 100))
@@ -151,6 +151,8 @@ class GameState(BaseGameState):
       self.trigger_quit()
       return
 
+    self.wave_label.set_text(
+        f"Wave {self.enemy_wave_manager.current_wave_number}/{self.enemy_wave_manager.maximum_waves}")
     self.health_status_bar.percent_full = self.player_resources.base_health / self.base_health_capacity
     self.ui_manager.update(dt)
 
