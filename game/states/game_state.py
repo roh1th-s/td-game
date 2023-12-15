@@ -1,7 +1,7 @@
 import pygame
 import os
 import pygame_gui
-from typing import List
+from typing import List, Tuple
 
 from pygame_gui.elements.ui_label import UILabel
 from pygame_gui.elements.ui_button import UIButton
@@ -43,7 +43,8 @@ class GameState(BaseGameState):
     circle_color = (200, 200, 200)
     circle_center = (15, 15)
     circle_radius = 15
-    pygame.draw.circle(self.bullet_img, circle_color, circle_center, circle_radius)
+    pygame.draw.circle(self.bullet_img, circle_color,
+                       circle_center, circle_radius)
 
     self.enemy_spawn_loc = (317, 207)
     self.enemy_waypoints = [(317, 207), (638, 205), (644, 94), (850, 94),
@@ -56,6 +57,7 @@ class GameState(BaseGameState):
     self.turret_button = None
     self.lose_message_label = None
     self.win_message_label = None
+    self.dark_overlay = None
     self.hud_rect = None
 
     # game state
@@ -92,6 +94,19 @@ class GameState(BaseGameState):
                                   tool_tip_text="<font size=2><b>Defense Turret</b><br><br>"
                                   "Place this on the map to defend against enemies.</font>", anchors={"right": "right", "centery": "centery"})
 
+    self.win_message_label = UILabel(pygame.Rect((0, -150), (850, 180)), text="You win!",
+                                     manager=self.ui_manager, object_id="#win_label", anchors={"center": "center"})
+    self.win_message_label.hide()
+
+    self.lose_message_label = UILabel(pygame.Rect((0, -150), (850, 180)), text="You lose :(",
+                                      manager=self.ui_manager, object_id="#win_label", anchors={"center": "center"})
+    self.lose_message_label.hide()
+
+    self.dark_overlay = pygame.Surface(
+        size=self.ui_manager.root_container.get_size())
+    self.dark_overlay.fill((0, 0, 0))
+    self.dark_overlay.set_alpha(125)
+
     self.in_progress = True
 
   def end(self):
@@ -105,39 +120,7 @@ class GameState(BaseGameState):
     for enemy in self.enemies:
       enemy.kill()
 
-  def run(self, screen: pygame.Surface, dt: float):
-    mouse_pos = pygame.mouse.get_pos()
-
-    # print(mouse_pos)
-    for event in pygame.event.get():
-      self.ui_manager.process_events(event)
-
-      if event.type == pygame_gui.UI_BUTTON_PRESSED:
-        if "#turret_button" in event.ui_object_id:
-          new_turret = GunTurret(mouse_pos, self.turret_img, self.bullet_img)
-          self.mouse_active_turret = new_turret
-          self.turrets.append(new_turret)
-
-      if event.type == pygame.MOUSEBUTTONUP:
-        if event.button == 1:  # left mouse btn
-          if self.mouse_active_turret:
-            tur_rect = self.mouse_active_turret.rect
-
-            cancelled = False
-            for turr in self.turrets:
-              if turr != self.mouse_active_turret and turr.rect.colliderect(tur_rect):
-                # if colliding with another turret, dont let place here
-                # cancel turret placement
-                self.turrets.remove(self.mouse_active_turret)
-                self.mouse_active_turret = None
-                cancelled = True
-
-            if not cancelled:
-              # valid place point
-              self.mouse_active_turret.set_position(mouse_pos)
-              self.mouse_active_turret.placed = True
-              self.mouse_active_turret = None
-
+  def update_entities(self, dt: float, mouse_pos: Tuple[int, int]):
     self.enemy_wave_manager.update(dt)
 
     for enemy in self.enemies:
@@ -147,20 +130,22 @@ class GameState(BaseGameState):
     for projectile in self.projectiles:
       projectile.update(dt, self.enemies, self.projectiles)
 
-    if self.player_resources.base_health <= 0:
-      self.trigger_quit()
-      return
-
+  def update_ui(self, dt: float):
     self.wave_label.set_text(
         f"Wave {self.enemy_wave_manager.current_wave_number}/{self.enemy_wave_manager.maximum_waves}")
-    self.health_status_bar.percent_full = self.player_resources.base_health / self.base_health_capacity
+    self.health_status_bar.percent_full = self.player_resources.base_health / \
+        self.base_health_capacity
     self.ui_manager.update(dt)
 
+  def draw(self, screen: pygame.Surface):
     screen.fill((0, 0, 0))
 
     screen.blit(self.map_img, (screen.get_width() /
                 2 - self.map_img.get_width() / 2, 0))
     screen.blit(self.base_img, (950, 550))
+
+    if not self.in_progress:
+      screen.blit(self.dark_overlay, (0, 0))
 
     for enemy in self.enemies:
       enemy.draw(screen)
@@ -170,3 +155,61 @@ class GameState(BaseGameState):
       projectile.draw(screen)
 
     self.ui_manager.draw_ui(screen)
+
+  def run(self, screen: pygame.Surface, dt: float):
+    mouse_pos = pygame.mouse.get_pos()
+
+    # handle events
+    for event in pygame.event.get():
+      self.ui_manager.process_events(event)
+
+      if event.type == pygame_gui.UI_BUTTON_PRESSED:
+        if self.in_progress:
+          if "#turret_button" in event.ui_object_id:
+            new_turret = GunTurret(mouse_pos, self.turret_img, self.bullet_img)
+            self.mouse_active_turret = new_turret
+            self.turrets.append(new_turret)
+
+      if event.type == pygame.MOUSEBUTTONUP:
+        if event.button == 1:  # left mouse btn
+          if self.in_progress:
+            if self.mouse_active_turret:
+              tur_rect = self.mouse_active_turret.rect
+
+              cancelled = False
+              for turr in self.turrets:
+                if turr != self.mouse_active_turret and turr.rect.colliderect(tur_rect):
+                  # if colliding with another turret, dont let place here
+                  # cancel turret placement
+                  if self.mouse_active_turret in self.turrets:
+                    self.turrets.remove(self.mouse_active_turret)
+
+                  self.mouse_active_turret = None
+                  cancelled = True
+
+              if not cancelled:
+                # valid place point
+                self.mouse_active_turret.set_position(mouse_pos)
+                self.mouse_active_turret.placed = True
+                self.mouse_active_turret = None
+
+    if self.in_progress: 
+      self.update_entities(dt, mouse_pos)
+
+    # handle game end
+    if self.in_progress and self.enemy_wave_manager.waves_over:
+      self.win_message_label.show()
+      print("You won!")
+      self.in_progress = False
+      return
+
+    if self.in_progress and self.player_resources.base_health <= 0:
+      self.lose_message_label.show()
+      print("Game over")
+      self.in_progress = False
+      return
+
+    self.update_ui(dt)
+
+    # draw stuff
+    self.draw(screen)

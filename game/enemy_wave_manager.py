@@ -13,19 +13,22 @@ class EnemyWaveManager:
     self.enemy_sprite = enemy_sprite
 
     # wave settings
-    self.maximum_waves = 20
-    self.number_of_sub_waves = 1.0
+    self.maximum_waves = 5
+    self.number_of_sub_waves = 1
     self.next_wave_countdown_time = 5.0
     self.time_between_waves = 30.0
     self.time_between_enemy_spawns = 0.7
     self.sub_wave_time = 4.0
-    self.initial_wave_points = 10  # wave points determine how many enemies can be spawned in the wave
+    # wave points determine how many enemies can be spawned in the wave
+    self.initial_wave_points = 10
     self.point_increase_per_wave = 10
-    self.enemy_cost = 1  # point cost to spawn the enemy (decremented from wave points)
+    # point cost to spawn the enemy (decremented from wave points)
+    self.enemy_cost = 1
 
     # state
     self.current_wave_number = 0
-    self.current_sub_wave = 1
+    self.waves_over = False
+    self.current_sub_wave = 0
     self.current_wave_points = self.initial_wave_points
     self.spawning_sub_waves = False
     self.should_show_wave_countdown = False
@@ -43,6 +46,7 @@ class EnemyWaveManager:
       self.wave_time_acc = countdown_start_time
 
     new_wave_countdown = str(int(self.time_between_waves - self.wave_time_acc))
+
     if self.wave_time_acc >= self.time_between_waves and\
             self.current_wave_number < self.maximum_waves:
       self.should_show_wave_countdown = False
@@ -54,11 +58,11 @@ class EnemyWaveManager:
       self.wave_time_acc += dt
     elif self.current_wave_number < self.maximum_waves:
       self.wave_time_acc += dt
-    else:
-      pass
+    elif self.current_wave_number >= self.maximum_waves and self.current_sub_wave >= self.number_of_sub_waves and not self.spawning_sub_waves:
+      if len(self.enemies) == 0:
+        self.waves_over = True
 
     if self.spawning_sub_waves:
-
       if self.sub_wave_acc > self.sub_wave_time:
         self.sub_wave_acc = 0.0
         self.spawn_new_sub_wave(
@@ -67,9 +71,8 @@ class EnemyWaveManager:
         self.enemy_spawn_cooldown_acc += dt
         self.sub_wave_acc += dt
 
-      if self.current_sub_wave > self.number_of_sub_waves:
+      if self.current_sub_wave >= self.number_of_sub_waves:
         self.spawning_sub_waves = False
-        self.current_sub_wave = 1
         self.point_increase_per_wave = self.point_increase_per_wave + \
             ((self.current_wave_number + 1) * 12)
         self.current_wave_points = self.initial_wave_points + self.point_increase_per_wave
@@ -79,6 +82,7 @@ class EnemyWaveManager:
     self.current_wave_number += 1
 
     self.number_of_sub_waves = self.current_wave_number
+    self.current_sub_wave = 0
     self.spawning_sub_waves = True
 
   def spawn_new_sub_wave(self, points):
@@ -88,12 +92,12 @@ class EnemyWaveManager:
     def spawn_enemy():
       nonlocal sub_wave_points
       while sub_wave_points >= self.enemy_cost:
-        time.sleep(self.time_between_enemy_spawns)
         new_enemy = Enemy(self.enemies, self.enemy_wavepoints, self.enemy_sprite,
                           self.enemy_cost, self.spawn_location, self.ui_manager)
         self.enemies.append(new_enemy)
         self.current_wave_points -= self.enemy_cost
         sub_wave_points -= self.enemy_cost
+        time.sleep(self.time_between_enemy_spawns)
 
     # launching a thread to spawn enemies with a time gap between them
     t = threading.Thread(target=spawn_enemy)
