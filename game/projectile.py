@@ -6,18 +6,18 @@ from game.enemy import Enemy
 
 
 class Projectile():
-  def __init__(self, start_pos: Tuple[int, int], heading_vec: Tuple[float, float], target_pos: Tuple[int, int],
+  def __init__(self, start_pos: Tuple[int, int], heading_vec: List[float], target_pos: Tuple[int, int],
                damage: int, speed: float, sprite: pygame.Surface):
     self.original_image = sprite
     self.display_image = sprite.copy()
     self.speed = speed
     self.damage = damage
 
-    self.current_vector = heading_vec
+    self.current_vector = heading_vec.copy()
     self.position = [float(start_pos[0]), float(start_pos[1])]
     facing_angle = math.atan2(-self.current_vector[0], -self.current_vector[1]) * 180 / math.pi
-    self.image = pygame.transform.rotate(self.original_image, facing_angle)
-    self.rect = self.image.get_rect()
+    self.display_image = pygame.transform.rotate(self.original_image, facing_angle)
+    self.rect = self.display_image.get_rect()
     self.rect.center = start_pos
 
     self.should_die = False
@@ -34,7 +34,8 @@ class Projectile():
     self.rect.center = (int(self.position[0]), int(self.position[1]))
 
     for enemy in enemies:
-      if enemy.rect.colliderect(self.rect):
+      enemy_hitbox = enemy.rect.scale_by(0.6)
+      if enemy_hitbox.colliderect(self.rect):
         enemy.take_damage(self.damage)
         self.should_die = True
 

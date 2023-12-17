@@ -5,11 +5,11 @@ from .enemy import Enemy
 
 class EnemyWaveManager:
 
-  def __init__(self, enemies, enemy_spawn_loc, enemy_waypoints, enemy_sprite, ui_manager):
+  def __init__(self, enemies, enemy_waypoints, enemy_sprite, ui_manager, game_state):
+    self.game_state = game_state
     self.ui_manager = ui_manager
-    self.spawn_location = enemy_spawn_loc
     self.enemies = enemies  # this is a reference to the game_state enemies array
-    self.enemy_wavepoints = enemy_waypoints
+    self.enemy_waypoints = enemy_waypoints
     self.enemy_sprite = enemy_sprite
 
     # wave settings
@@ -52,7 +52,7 @@ class EnemyWaveManager:
       self.should_show_wave_countdown = False
       self.spawn_new_wave()
       self.wave_time_acc = 0.0
-    elif self.wave_time_acc >= countdown_start_time and self.current_wave_number < self.maximum_waves:
+    elif self.wave_time_acc >= countdown_start_time and self.current_wave_number < self.maximum_waves - 1:
       self.count_down_message = "New wave in " + new_wave_countdown + " seconds"
       self.should_show_wave_countdown = True
       self.wave_time_acc += dt
@@ -92,8 +92,11 @@ class EnemyWaveManager:
     def spawn_enemy():
       nonlocal sub_wave_points
       while sub_wave_points >= self.enemy_cost:
-        new_enemy = Enemy(self.enemies, self.enemy_wavepoints, self.enemy_sprite,
-                          self.enemy_cost, self.spawn_location, self.ui_manager)
+        if not self.game_state.in_progress:
+          return
+
+        new_enemy = Enemy(self.enemies, self.enemy_waypoints, self.enemy_sprite,
+                          self.enemy_cost, self.ui_manager, self.game_state.enemy_health_bar_container)
         self.enemies.append(new_enemy)
         self.current_wave_points -= self.enemy_cost
         sub_wave_points -= self.enemy_cost

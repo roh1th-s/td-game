@@ -20,7 +20,7 @@ class SelectLevel(BaseGameState):
 
     # temporarily hardcoded
     self.level1_btn = UIButton(pygame.Rect((0, 0), (200, 200)),
-                               text="Level 1", manager=self.ui_manager, object_id="@start_button",
+                               text="Level 1", manager=self.ui_manager, object_id="@primary_button",
                                tool_tip_text="<b>Play Level 1</b>", anchors={"center": "center"})
 
   def end(self):
@@ -39,6 +39,7 @@ class SelectLevel(BaseGameState):
 
     self.ui_manager.update(dt)
 
-    screen.blit(self.bg_image, (0, 0))
+    screen.fill((0, 0, 0))
+    # screen.blit(self.bg_image, (0, 0))
 
     self.ui_manager.draw_ui(screen)

@@ -22,18 +22,25 @@ class MainMenu(BaseGameState):
   def start(self):
     self.bg_image = pygame.transform.scale(pygame.image.load(
         os.path.join("data", "images", "bg.jpg")).convert(), self.ui_manager.window_resolution)
-    self.title_label = UILabel(pygame.Rect((0, -150), (850, 180)), text="Guardians Of The Realm",
+
+    # TODO: use UITextBox to wrap automatically
+    self.title_label_l1 = UILabel(pygame.Rect((0, -130), (920, 100)), text="Guardians Of",
                                manager=self.ui_manager, object_id="#game_title", anchors={"center": "center"})
-    self.play_game_button = UIButton(pygame.Rect((0, 90), (200, 70)),
-                                     text="Start Game", manager=self.ui_manager, object_id="@start_button",
+    self.title_label_l1.set_active_effect(pygame_gui.TEXT_EFFECT_TYPING_APPEAR)
+    self.title_label_l2 = UILabel(pygame.Rect((0, -40), (920, 100)), text="the Realm",
+                               manager=self.ui_manager, object_id="#game_title", anchors={"center": "center"})
+    self.title_label_l2.set_active_effect(pygame_gui.TEXT_EFFECT_TYPING_APPEAR)
+    self.play_game_button = UIButton(pygame.Rect((0, 90), (250, 70)),
+                                     text="Start Game", manager=self.ui_manager, object_id="@primary_button",
                                      tool_tip_text="<b>Click to Start.</b>", anchors={"center": "center"})
 
   def end(self):
     # remove main menu ui
-    self.title_label.kill()
+    self.title_label_l1.kill()
+    self.title_label_l2.kill()
     self.play_game_button.kill()
 
-  def run(self, screen, dt):
+  def run(self, screen: pygame.Surface, dt: float):
     for event in pygame.event.get():
       self.ui_manager.process_events(event)
 
@@ -44,6 +51,7 @@ class MainMenu(BaseGameState):
 
     self.ui_manager.update(dt)
 
-    screen.blit(self.bg_image, (0, 0))
+    screen.fill((0, 0, 0))
+    # screen.blit(self.bg_image, (0, 0))
 
     self.ui_manager.draw_ui(screen)

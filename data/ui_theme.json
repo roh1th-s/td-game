@@ -15,24 +15,30 @@
 
 	"#game_title": {
 		"colours": {
-			"normal_text": "#84612e",
+			"normal_text": "#c4830b",
 			"dark_bg": "#FFFFFF00"
 		},
 		"font": {
-			"name": "londrina_shadow",
+			"name": "silkscreen",
 			"size": "95",
-			"regular_path": "data/fonts/LondrinaShadow-Regular.ttf"
+			"regular_path": "data/fonts/Silkscreen-Regular.ttf",
+			"bold_path": "data/fonts/Silkscreen-Bold.ttf"
 		}
 	},
 
-	"@start_button": {
+	"@primary_button": {
 		"colours": {
-			"normal_bg": "#84612e",
+			"normal_bg": "#1C1C1C",
 			"hovered_bg": "#000000",
-			"hovered_text": "#be8c46"
+			"hovered_text": "#c4830b",
+			"active_bg": "#000000",
+			"active_text": "#c4830b",
+			"active_border": "#c4830b"
 		},
 		"font": {
-			"size": "25"
+			"name": "silkscreen",
+			"size": "25",
+			"regular_path": "data/fonts/Silkscreen-Regular.ttf"
 		},
 		"misc": {
 			"shape": "rounded_rectangle",
@@ -41,6 +47,13 @@
 				"normal_hovered": "0.2",
 				"hovered_normal": "0.2"
 			}
+		}
+	},
+
+	"@small_text_button": {
+		"prototype": "@primary_button",
+		"font": {
+			"size": "20"
 		}
 	},
 
@@ -68,13 +81,13 @@
 		},
 		"font": {
 			"size": "30"
-		}	,
+		},
 		"misc": {
-			"shape" : "rounded_rectangle",
+			"shape": "rounded_rectangle",
 			"shape_corner_radius": "10"
 		}
 	},
-	"#turret_button": {
+	"#turret1_button": {
 		"colours": {
 			"normal_bg": "#FFFFFF00",
 			"hovered_bg": "#FFFFFF00",
@@ -89,44 +102,29 @@
 			}
 		},
 		"misc": {
-			"shape" : "rounded_rectangle",
+			"shape": "rounded_rectangle",
 			"shape_corner_radius": "10"
 		}
 	},
-	"#screen_text": {
+	"#turret2_button": {
 		"colours": {
-			"normal_text": "#FFFFFF",
-			"dark_bg": "#00000000",
-			"text_shadow": "#505050"
+			"normal_bg": "#FFFFFF00",
+			"hovered_bg": "#FFFFFF00",
+			"active_bg": "#FFFFFF11"
 		},
-		"font": {
-			"name": "just_another_hand",
-			"size": "32",
-			"regular_path": "data/fonts/JustAnotherHand.ttf"
+		"images": {
+			"normal_image": {
+				"path": "data/images/turret2.png"
+			},
+			"hovered_image": {
+				"path": "data/images/turret2.png"
+			}
 		},
 		"misc": {
-			"text_shadow": "1",
-			"text_shadow_size": "1",
-			"text_shadow_offset": "0,0"
+			"shape": "rounded_rectangle",
+			"shape_corner_radius": "10"
 		}
 	},
-
-	"#small_screen_text": {
-		"colours": {
-			"normal_text": "#FFFFFF",
-			"dark_bg": "#00000000",
-			"text_shadow": "#505050"
-		},
-		"font": {
-			"name": "just_another_hand",
-			"size": "20"
-		},
-		"misc": {
-			"text_shadow": "1",
-			"text_shadow_size": "1"
-		}
-	},
-
 	"#win_label": {
 		"colours": {
 			"normal_text": "#FFFFFF",
@@ -134,12 +132,41 @@
 			"text_shadow": "#505050"
 		},
 		"font": {
-			"bold": 1,
-			"size": "72"
+			"name": "silkscreen",
+			"size": "95",
+			"regular_path": "data/fonts/Silkscreen-Regular.ttf"
 		},
 		"misc": {
 			"text_shadow": "1",
 			"text_shadow_size": "1"
+		}
+	},
+
+	"#end_screen_panel": {
+		"colours": {
+			"dark_bg": "#000000DC"
+		}
+	},
+	"@transparent_panel": {
+		"colours": {
+			"dark_bg": "#00000000",
+			"normal_border": "#00000000"
+		}
+	},
+	"#main_menu_button": {
+		"prototype": "@small_text_button"
+	},
+	"#quit_button": {
+		"prototype": "@small_text_button",
+		"colours": {
+			"normal_bg": "#1C1C1C",
+			"normal_text": "#FF0000",
+			"hovered_bg": "#000000",
+			"hovered_text": "#FF0000",
+			"hovered_border": "#FF0000",
+			"active_bg": "#000000",
+			"active_text": "#FF0000",
+			"active_border": "#FF0000"
 		}
 	}
 }

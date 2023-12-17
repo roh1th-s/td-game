@@ -4,7 +4,7 @@ from typing import Tuple
 from game.projectile import Projectile
 
 
-class GunTurret():
+class NormalTurret():
   def __init__(self, mouse_pos: Tuple[int, int], img: pygame.Surface, bullet_img: pygame.Surface):
     self.original_image = img  # keep this so it can be scaled/rotated later as needed
     self.display_image = img.copy()  # img that is actually blitted on screen
@@ -15,16 +15,19 @@ class GunTurret():
     self.rect.center = self.position
     self.current_target = None
     self.current_vector = [0, 0]
+    self.target_vector = [0, 0]
     self.current_angle = 0
     self.distance_to_target = 0.0
+    self.angle_to_target = 0.0
 
     self.placed = False
-    self.show_radius = True
+    self.draw_radius = True
+    self.draw_target_vector = False
     self.can_fire = True
     self.radius = 100
     self.projectile_speed = 100
     self.per_bullet_damage = 30
-    self.fire_rate = 2
+    self.fire_rate = 1
     self.fire_rate_acc = 0.0  # accumulate dt into this to keep track of fire rate
     self.rotate_speed = 5  # in radians
 
@@ -32,9 +35,9 @@ class GunTurret():
     if self.placed:
       # show attack radius when hovered over
       if self.rect.collidepoint(mouse_pos):
-        self.show_radius = True
+        self.draw_radius = True
       else:
-        self.show_radius = False
+        self.draw_radius = False
 
       self.update_firing(dt, enemies, projectiles)
 
@@ -46,12 +49,14 @@ class GunTurret():
         unit_dir_vector = [self.current_vector[0] / direction_magnitude,
                            self.current_vector[1] / direction_magnitude]
 
-      facing_angle = math.atan2(-unit_dir_vector[0], -unit_dir_vector[1]) * 180 / math.pi
+      facing_angle = math.atan2(-unit_dir_vector[0], -
+                                unit_dir_vector[1]) * 180 / math.pi
 
       if facing_angle != self.current_angle:
         self.current_angle = facing_angle
         turret_centre_position = self.rect.center
-        self.display_image = pygame.transform.rotate(self.original_image, facing_angle)
+        self.display_image = pygame.transform.rotate(
+            self.original_image, facing_angle)
         self.rect = self.display_image.get_rect()
         self.rect.center = turret_centre_position
 
@@ -66,18 +71,24 @@ class GunTurret():
     else:
       self.can_fire = True
 
-    if self.current_target is None or self.current_target.should_die or self.target_distance > self.radius:
-      self.current_target, self.target_distance = self.get_closest_enemy_in_radius(enemies)
+    if self.current_target is None or self.current_target.should_die or \
+            self.distance_to_target > self.radius or self.angle_to_target > math.pi/8:
+      self.current_target, self.distance_to_target = self.get_closest_enemy_in_radius(
+          enemies)
 
     if self.current_target is not None:
       # aim at the enemy
-      self.target_distance = self.calc_distance_to_target(self.current_target)
+      self.distance_to_target = self.estimate_distance_to_target(
+          self.current_target
+      )
 
-      results = self.calculate_aim_vector(self.current_target, self.target_distance)
+      results = self.calculate_aim_vector(
+          self.current_target, self.distance_to_target)
       self.target_vector = results[0]
       target_pos = results[1]
 
       relative_angle_to_target = self.rotate_current_angle_to_target(dt)
+      self.angle_to_target = relative_angle_to_target
       # fire some bullets
       if self.can_fire and abs(relative_angle_to_target) < math.pi/8:
         self.fire_rate_acc = 0.0
@@ -91,7 +102,7 @@ class GunTurret():
   def draw(self, screen: pygame.Surface):
     screen.blit(self.display_image, self.rect.topleft)
 
-    if self.show_radius:
+    if self.draw_radius:
       s = pygame.Surface((self.radius*2, self.radius*2))
 
       color_key = (127, 33, 33)  # rando color
@@ -104,6 +115,10 @@ class GunTurret():
       s.set_alpha(75)
       int_pos = self.get_position_int()
       screen.blit(s, (int_pos[0] - self.radius, int_pos[1] - self.radius))
+
+    if self.current_target and self.draw_target_vector:
+      pygame.draw.line(screen, pygame.Color("#FF0000"),
+                       self.position, self.current_target.position, 2)
 
   def set_position(self, position):
     self.position = position
@@ -137,27 +152,55 @@ class GunTurret():
 
     return relative_angle
 
-  def calc_distance_to_target(self, target):
+  def calc_relative_angle_to_target(self, target):
+    current_angle = math.atan2(self.current_vector[1], self.current_vector[0])
+    current_dist = self.calc_curr_distance_to_target(target)
+    target_vector = self.calculate_aim_vector(target, current_dist)[0]
+    target_angle = math.atan2(target_vector[1], target_vector[0])
+
+    return target_angle - current_angle
+
+  def calc_curr_distance_to_target(self, target):
     x_dist = self.position[0] - target.position[0]
     y_dist = self.position[1] - target.position[1]
-    current_dist = math.sqrt((x_dist * x_dist) + (y_dist * y_dist))
+
+    return math.sqrt((x_dist * x_dist) + (y_dist * y_dist))
+
+  def estimate_distance_to_target(self, target):
+    current_dist = self.calc_curr_distance_to_target(target)
     # re-adjust distance to our anticipated position when projectiles reach target
-    time_to_reach_target = current_dist/self.projectile_speed
+    time_to_reach_target = current_dist / self.projectile_speed
     guess_position = target.guess_position_at_time(time_to_reach_target)
     x_dist = guess_position[0] - self.position[0]
     y_dist = guess_position[1] - self.position[1]
     guess_dist = math.sqrt((x_dist ** 2) + (y_dist ** 2))
+
     return guess_dist
 
   def get_closest_enemy_in_radius(self, enemies):
     closest_enemy_distance = self.radius
     closest_enemy_in_radius = None
+
+    closest_aligned_enemy_distance = self.radius
+    closest_aligned_enemy = None
+
     for enemy in enemies:
-      guess_dist = self.calc_distance_to_target(enemy)
-      if guess_dist < self.radius:
-        if guess_dist < closest_enemy_distance:
-          closest_enemy_distance = guess_dist
+      enemy_dist = self.calc_curr_distance_to_target(enemy)
+      relative_angle = self.calc_relative_angle_to_target(enemy)
+
+      if enemy_dist < self.radius:
+
+        if enemy_dist < closest_enemy_distance:
+          closest_enemy_distance = enemy_dist
           closest_enemy_in_radius = enemy
+
+        if relative_angle < math.pi / 8:
+          if enemy_dist < closest_aligned_enemy_distance:
+            closest_aligned_enemy = enemy
+            closest_aligned_enemy_distance = enemy_dist
+
+    if closest_aligned_enemy is not None:
+      return closest_aligned_enemy, closest_aligned_enemy_distance
 
     return closest_enemy_in_radius, closest_enemy_distance
 
