@@ -25,10 +25,10 @@ class MainMenu(BaseGameState):
 
     # TODO: use UITextBox to wrap automatically
     self.title_label_l1 = UILabel(pygame.Rect((0, -130), (920, 100)), text="Guardians Of",
-                               manager=self.ui_manager, object_id="#game_title", anchors={"center": "center"})
+                                  manager=self.ui_manager, object_id="#game_title", anchors={"center": "center"})
     self.title_label_l1.set_active_effect(pygame_gui.TEXT_EFFECT_TYPING_APPEAR)
     self.title_label_l2 = UILabel(pygame.Rect((0, -40), (920, 100)), text="the Realm",
-                               manager=self.ui_manager, object_id="#game_title", anchors={"center": "center"})
+                                  manager=self.ui_manager, object_id="#game_title", anchors={"center": "center"})
     self.title_label_l2.set_active_effect(pygame_gui.TEXT_EFFECT_TYPING_APPEAR)
     self.play_game_button = UIButton(pygame.Rect((0, 90), (250, 70)),
                                      text="Start Game", manager=self.ui_manager, object_id="@primary_button",

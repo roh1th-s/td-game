@@ -22,6 +22,7 @@ class NormalTurret():
 
     self.placed = False
     self.draw_radius = True
+    self.illegal_place_point = False
     self.draw_target_vector = False
     self.can_fire = True
     self.radius = 100
@@ -31,13 +32,13 @@ class NormalTurret():
     self.fire_rate_acc = 0.0  # accumulate dt into this to keep track of fire rate
     self.rotate_speed = 5  # in radians
 
-  def update(self, mouse_pos, dt, enemies, projectiles):
+  def update(self, mouse_pos, dt, enemies, projectiles, all_turrets, map_rect):
     if self.placed:
       # show attack radius when hovered over
-      if self.rect.collidepoint(mouse_pos):
-        self.draw_radius = True
-      else:
-        self.draw_radius = False
+      # if self.rect.collidepoint(mouse_pos):
+      #   self.draw_radius = True
+      # else:
+      #   self.draw_radius = False
 
       self.update_firing(dt, enemies, projectiles)
 
@@ -61,6 +62,10 @@ class NormalTurret():
         self.rect.center = turret_centre_position
 
     else:
+      if not self.is_valid_place_point(mouse_pos, all_turrets, map_rect):
+        self.illegal_place_point = True
+      else:
+        self.illegal_place_point = False
       # if turret isn't placed yet, move it along with mouse
       self.set_position(mouse_pos)
 
@@ -109,7 +114,7 @@ class NormalTurret():
       s.fill(color_key)
       s.set_colorkey(color_key)
 
-      pygame.draw.circle(s, pygame.Color("#B4B4B4"),
+      pygame.draw.circle(s, pygame.Color("#FF0000" if self.illegal_place_point else "#B4B4B4"),
                          (self.radius, self.radius), self.radius)
 
       s.set_alpha(75)
@@ -119,6 +124,29 @@ class NormalTurret():
     if self.current_target and self.draw_target_vector:
       pygame.draw.line(screen, pygame.Color("#FF0000"),
                        self.position, self.current_target.position, 2)
+
+  def is_valid_place_point(self, place_pos, all_turrets, map_rect) -> bool:
+    for turret in all_turrets:
+      if turret is not self:
+        if turret.rect.collidepoint(place_pos):
+          return False
+
+    tur_rect = self.rect.copy()
+    tur_rect.center = place_pos
+
+    if not map_rect.contains(tur_rect):
+      return False
+
+    return True
+
+  def place(self, mouse_pos, all_turrets, map_rect) -> bool:
+    if self.is_valid_place_point(mouse_pos, all_turrets, map_rect):
+      self.placed = True
+      self.set_position(mouse_pos)
+      self.draw_radius = False
+      return True
+
+    return False
 
   def set_position(self, position):
     self.position = position

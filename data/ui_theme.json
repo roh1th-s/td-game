@@ -127,21 +127,21 @@
 	},
 	"#win_label": {
 		"colours": {
-			"normal_text": "#FFFFFF",
-			"dark_bg": "#00000000",
-			"text_shadow": "#505050"
+			"normal_text": "#c4830b",
+			"dark_bg": "#00000000"
 		},
 		"font": {
 			"name": "silkscreen",
 			"size": "95",
 			"regular_path": "data/fonts/Silkscreen-Regular.ttf"
-		},
-		"misc": {
-			"text_shadow": "1",
-			"text_shadow_size": "1"
 		}
 	},
-
+	"#lose_label": {
+		"prototype": "#win_label",
+		"colours": {
+			"normal_text": "#FFFFFF"
+		}
+	},
 	"#end_screen_panel": {
 		"colours": {
 			"dark_bg": "#000000DC"

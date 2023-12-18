@@ -31,6 +31,10 @@ class GameState(BaseGameState):
     # sprites/maps
     self.map_img = pygame.transform.scale(pygame.image.load(
         os.path.join("data", "images", "level1.jpeg")), (720, 720)).convert()
+    self.map_rect = pygame.Rect(
+        (self.screen.get_width() / 2 - self.map_img.get_width() / 2, 0),
+        self.map_img.get_size()
+    )
     self.base_img = pygame.transform.scale_by(pygame.image.load(
         os.path.join("data", "images", "base.png")), 2).convert_alpha()
     self.enemy_img = pygame.transform.scale_by(pygame.image.load(
@@ -121,7 +125,7 @@ class GameState(BaseGameState):
     self.win_message_label = UILabel(pygame.Rect((0, -100), (850, 180)), text="You win!",
                                      manager=self.ui_manager, container=self.end_screen_container, object_id="#win_label", anchors={"center": "center"})
     self.lose_message_label = UILabel(pygame.Rect((0, -100), (850, 180)), text="You lose :(",
-                                      manager=self.ui_manager, container=self.end_screen_container, object_id="#win_label", anchors={"center": "center"})
+                                      manager=self.ui_manager, container=self.end_screen_container, object_id="#lose_label", anchors={"center": "center"})
     # self.end_screen_panel.show()
     # self.lose_message_label.hide()
 
@@ -174,7 +178,8 @@ class GameState(BaseGameState):
     for enemy in self.enemies:
       enemy.update(dt, self.player_resources)
     for turret in self.turrets:
-      turret.update(mouse_pos, dt, self.enemies, self.projectiles)
+      turret.update(mouse_pos, dt, self.enemies,
+                    self.projectiles, self.turrets, self.map_rect)
     for projectile in self.projectiles:
       projectile.update(dt, self.enemies, self.projectiles)
 
@@ -194,10 +199,7 @@ class GameState(BaseGameState):
     # screen.blit(self.base_img, (950, 550))
 
     for enemy in self.enemies:
-      enemy.draw(screen, pygame.Rect(
-          (screen.get_width() / 2 - self.map_img.get_width() / 2, 0),
-          self.map_img.get_size()
-      ))
+      enemy.draw(screen, self.map_rect)
     for turret in self.turrets:
       turret.draw(screen)
     for projectile in self.projectiles:
@@ -237,24 +239,13 @@ class GameState(BaseGameState):
         if event.button == 1:  # left mouse btn
           if self.in_progress:
             if self.mouse_active_turret:
-              tur_rect = self.mouse_active_turret.rect
+              placed = self.mouse_active_turret.place(mouse_pos, self.turrets, self.map_rect)
 
-              cancelled = False
-              for turr in self.turrets:
-                if turr != self.mouse_active_turret and turr.rect.colliderect(tur_rect):
-                  # if colliding with another turret, dont let place here
-                  # cancel turret placement
-                  if self.mouse_active_turret in self.turrets:
-                    self.turrets.remove(self.mouse_active_turret)
+              if not placed:
+                if self.mouse_active_turret in self.turrets:
+                  self.turrets.remove(self.mouse_active_turret)
 
-                  self.mouse_active_turret = None
-                  cancelled = True
-
-              if not cancelled:
-                # valid place point
-                self.mouse_active_turret.set_position(mouse_pos)
-                self.mouse_active_turret.placed = True
-                self.mouse_active_turret = None
+              self.mouse_active_turret = None
 
     if self.in_progress:
       self.update_entities(dt, mouse_pos)
