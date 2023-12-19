@@ -56,21 +56,23 @@
 			"size": "20"
 		}
 	},
-
-	"#wave_number": {
+	"@white_label": {
 		"colours": {
 			"normal_text": "#FFFFFF",
 			"dark_bg": "#FFFFFF00"
 		},
 		"font": {
+			"name": "silkscreen",
+			"regular_path": "data/fonts/Silkscreen-Regular.ttf",
 			"size": "40"
 		}
 	},
+	"#wave_number": {
+		"prototype": "@white_label"
+		
+	},
 	"#health_label": {
-		"colours": {
-			"normal_text": "#FFFFFF",
-			"dark_bg": "#FFFFFF00"
-		},
+		"prototype": "@white_label",
 		"font": {
 			"size": "30"
 		}
@@ -87,18 +89,30 @@
 			"shape_corner_radius": "10"
 		}
 	},
-	"#turret1_button": {
+	"#defense_help_label": {
+		"prototype": "@white_label",
+		"font": {
+			"size": "18"
+		}
+	},
+	"#normal_turret_button": {
 		"colours": {
 			"normal_bg": "#FFFFFF00",
+			"disabled_bg": "#FFFFFF00",
 			"hovered_bg": "#FFFFFF00",
-			"active_bg": "#FFFFFF11"
+			"active_bg": "#FFFFFF11",
+			"disabled_text": "#FFFFFF"
+		},
+		"font": {
+			"bold": "1",
+			"size": "33"
 		},
 		"images": {
 			"normal_image": {
-				"path": "data/images/turret.png"
+				"path": "data/images/normal_turret.png"
 			},
 			"hovered_image": {
-				"path": "data/images/turret.png"
+				"path": "data/images/normal_turret.png"
 			}
 		},
 		"misc": {
@@ -106,18 +120,24 @@
 			"shape_corner_radius": "10"
 		}
 	},
-	"#turret2_button": {
+	"#double_turret_button": {
 		"colours": {
 			"normal_bg": "#FFFFFF00",
+			"disabled_bg": "#FFFFFF00",
 			"hovered_bg": "#FFFFFF00",
-			"active_bg": "#FFFFFF11"
+			"active_bg": "#FFFFFF11",
+			"disabled_text": "#FFFFFF"
+		},
+		"font": {
+			"bold": "1",
+			"size": "33"
 		},
 		"images": {
 			"normal_image": {
-				"path": "data/images/turret2.png"
+				"path": "data/images/double_turret.png"
 			},
 			"hovered_image": {
-				"path": "data/images/turret2.png"
+				"path": "data/images/double_turret.png"
 			}
 		},
 		"misc": {

@@ -5,11 +5,20 @@ from game.projectile import Projectile
 
 
 class NormalTurret():
+  cooldown_time = 10
+  fire_rate = 1
+  rotate_speed = 5
+  radius = 100
+  projectile_speed = 150
+  per_bullet_damage = 30
+
   def __init__(self, mouse_pos: Tuple[int, int], img: pygame.Surface, bullet_img: pygame.Surface):
     self.original_image = img  # keep this so it can be scaled/rotated later as needed
     self.display_image = img.copy()  # img that is actually blitted on screen
     self.bullet_image = bullet_img
     self.initial_pos = mouse_pos
+
+    # variable state
     self.position = (float(mouse_pos[0]), float(mouse_pos[1]))
     self.rect = img.get_rect()
     self.rect.center = self.position
@@ -19,18 +28,12 @@ class NormalTurret():
     self.current_angle = 0
     self.distance_to_target = 0.0
     self.angle_to_target = 0.0
-
     self.placed = False
     self.draw_radius = True
     self.illegal_place_point = False
     self.draw_target_vector = False
     self.can_fire = True
-    self.radius = 100
-    self.projectile_speed = 100
-    self.per_bullet_damage = 30
-    self.fire_rate = 1
     self.fire_rate_acc = 0.0  # accumulate dt into this to keep track of fire rate
-    self.rotate_speed = 5  # in radians
 
   def update(self, mouse_pos, dt, enemies, projectiles, all_turrets, map_rect):
     if self.placed:

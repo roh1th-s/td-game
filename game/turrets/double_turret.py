@@ -6,6 +6,8 @@ from game.turrets.normal_turret import NormalTurret
 
 
 class DoubleTurret(NormalTurret):
+  cooldown_time = 20
+  
   def __init__(self, mouse_pos: Tuple[int, int], img: Surface, bullet_img: Surface):
     super().__init__(mouse_pos, img, bullet_img)
 

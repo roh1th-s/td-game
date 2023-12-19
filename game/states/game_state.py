@@ -1,7 +1,8 @@
+from math import ceil
 import pygame
 import os
 import pygame_gui
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 
 from pygame_gui.elements.ui_label import UILabel
 from pygame_gui.elements.ui_button import UIButton
@@ -12,6 +13,7 @@ from game.enemy_wave_manager import EnemyWaveManager
 from game.turrets.double_turret import DoubleTurret
 from game.turrets.normal_turret import NormalTurret
 from game.projectile import Projectile
+from game.util import grayscale_image
 from .base_game_state import BaseGameState
 from .game_state_manager import GameStateManager
 
@@ -41,21 +43,12 @@ class GameState(BaseGameState):
         os.path.join("data", "images", "enemy.png")), 2).convert_alpha()
     self.projectile_img = pygame.transform.scale_by(pygame.image.load(
         os.path.join("data", "images", "projectile.png")), 0.7).convert_alpha()
-    self.turret_imgs = [
-        pygame.transform.scale(pygame.image.load(
-            os.path.join("data", "images", "turret.png")), (50, 50)).convert_alpha(),
-        pygame.transform.scale(pygame.image.load(
-            os.path.join("data", "images", "turret2.png")), (50, 50)).convert_alpha()
-    ]
-
-    # self.bullet_img = pygame.Surface((30, 30))
-    # self.bullet_img.fill((0, 0, 0))
-    # self.bullet_img.set_colorkey((0, 0, 0))
-    # circle_color = (200, 200, 200)
-    # circle_center = (15, 15)
-    # circle_radius = 15
-    # pygame.draw.circle(self.bullet_img, circle_color,
-    #                    circle_center, circle_radius)
+    self.turret_imgs = {
+        "normal_turret": pygame.transform.scale(pygame.image.load(
+            os.path.join("data", "images", "normal_turret.png")), (50, 50)).convert_alpha(),
+        "double_turret": pygame.transform.scale(pygame.image.load(
+            os.path.join("data", "images", "double_turret.png")), (50, 50)).convert_alpha()
+    }
 
     # settings
     self.enemy_waypoints = [(240, 207), (638, 205), (644, 90), (850, 90),
@@ -66,7 +59,7 @@ class GameState(BaseGameState):
     self.wave_label = None
     self.health_label = None
     self.health_status_bar = None
-    self.normal_turret_btn = None
+    self.turret_btns: Dict[str, UIButton] = {}
     self.lose_message_label = None
     self.win_message_label = None
     self.hud_rect = None
@@ -79,18 +72,22 @@ class GameState(BaseGameState):
     self.enemy_wave_manager = EnemyWaveManager(
         self.enemies, self.enemy_waypoints, self.enemy_img, self.ui_manager, self)
     self.turrets: List[NormalTurret] = []
+    self.turret_cooldowns: Dict[str, int] = {
+        "normal_turret": 0,
+        "double_turret": 0
+    }
     self.hud_buttons = []
     self.projectiles: List[Projectile] = []
 
   def start(self):
     print("Game start")
     self.wave_label = UILabel(pygame.Rect((10, 0), (250, 50)), text="Game starting...",
-                              manager=self.ui_manager, object_id="#wave_number")
+                              object_id="#wave_number")
 
     health_label_rect = pygame.Rect((0, 0), (200, 100))
     health_label_rect.bottomright = (-30, -30)
     self.health_label = UILabel(health_label_rect, text="Health:",
-                                manager=self.ui_manager, object_id="#health_label", anchors={"right": "right", "bottom": "bottom"})
+                                object_id="#health_label", anchors={"right": "right", "bottom": "bottom"})
 
     health_status_rect = pygame.Rect((0, 0), (200, 50))
     health_status_rect.bottomright = (-30, -10)
@@ -98,34 +95,48 @@ class GameState(BaseGameState):
                                          anchors={"right": "right", "bottom": "bottom"})
     self.health_status_bar.percent_full = 100
 
+    defense_help_label_rect = pygame.Rect((0, 0), (105, 50))
+    defense_help_label_rect.bottom = -60
+    defense_help_label_rect.right = -30
+    self.defense_help_label = UILabel(defense_help_label_rect, text="Defenses:",
+                                      object_id="#defense_help_label", anchors={"right": "right", "centery": "centery"})
+
     normal_turret_btn_rect = pygame.Rect((0, 0), (80, 80))
     normal_turret_btn_rect.bottom = 30
     normal_turret_btn_rect.right = -40
-    self.normal_turret_btn = UIButton(normal_turret_btn_rect, "", object_id="#turret1_button",
-                                      tool_tip_text="<font size=2><b>Normal turret</b><br><br>Fires a single projectile.</font>",
-                                      anchors={"right": "right", "centery": "centery"})
+    normal_turret_btn = UIButton(normal_turret_btn_rect, "", object_id="#normal_turret_button",
+                                 tool_tip_text="<font size=2><b>Normal turret</b><br><br>Fires a single projectile.</font>",
+                                 anchors={"right": "right", "centery": "centery"})
+    normal_turret_btn.disabled_image = grayscale_image(
+        normal_turret_btn.normal_image)
+    normal_turret_btn.rebuild()  # hacky method to grayscale disabled image in code
+    self.turret_btns["normal_turret"] = normal_turret_btn
 
     double_turret_btn_rect = normal_turret_btn_rect.copy()
-    double_turret_btn_rect.bottom = 110
-    self.double_turret_btn = UIButton(double_turret_btn_rect, "", object_id="#turret2_button",
-                                      tool_tip_text="<font size=2><b>Double Turret</b><br><br>Shoots two projectiles.</font>",
-                                      anchors={"right": "right", "centery": "centery"})
+    double_turret_btn_rect.bottom = 120
+    double_turret_btn = UIButton(double_turret_btn_rect, "", object_id="#double_turret_button",
+                                 tool_tip_text="<font size=2><b>Double Turret</b><br><br>Shoots two projectiles.</font>",
+                                 anchors={"right": "right", "centery": "centery"})
+    double_turret_btn.disabled_image = grayscale_image(
+        double_turret_btn.normal_image)
+    double_turret_btn.rebuild()
+    self.turret_btns["double_turret"] = double_turret_btn
 
     self.end_screen_panel = UIPanel(pygame.Rect((0, 0), self.ui_manager.get_root_container().get_size()),
-                                    starting_height=3, manager=self.ui_manager, object_id="#end_screen_panel")
+                                    starting_height=3, object_id="#end_screen_panel")
     self.end_screen_panel.hide()
     self.end_screen_container = self.end_screen_panel.get_container()
 
     self.enemy_health_bar_panel = UIPanel(pygame.Rect(
         (self.screen.get_width() / 2 - self.map_img.get_width() / 2, 0),
         self.map_img.get_size()
-    ), starting_height=1, manager=self.ui_manager, object_id="@transparent_panel")
+    ), starting_height=1, object_id="@transparent_panel")
     self.enemy_health_bar_container = self.enemy_health_bar_panel.get_container()
 
     self.win_message_label = UILabel(pygame.Rect((0, -100), (850, 180)), text="You win!",
-                                     manager=self.ui_manager, container=self.end_screen_container, object_id="#win_label", anchors={"center": "center"})
+                                     container=self.end_screen_container, object_id="#win_label", anchors={"center": "center"})
     self.lose_message_label = UILabel(pygame.Rect((0, -100), (850, 180)), text="You lose :(",
-                                      manager=self.ui_manager, container=self.end_screen_container, object_id="#lose_label", anchors={"center": "center"})
+                                      container=self.end_screen_container, object_id="#lose_label", anchors={"center": "center"})
     # self.end_screen_panel.show()
     # self.lose_message_label.hide()
 
@@ -144,10 +155,11 @@ class GameState(BaseGameState):
     self.wave_label.kill()
     self.health_label.kill()
     self.health_status_bar.kill()
-    self.normal_turret_btn.kill()
-    self.double_turret_btn.kill()
     self.enemy_health_bar_panel.kill()
     self.end_screen_panel.kill()
+    self.defense_help_label.kill()
+    for turret_btn in self.turret_btns.values():
+      turret_btn.kill()
 
     for enemy in self.enemies:
       enemy.kill()
@@ -156,7 +168,7 @@ class GameState(BaseGameState):
     self.wave_label = None
     self.health_label = None
     self.health_status_bar = None
-    self.normal_turret_btn = None
+    self.turret_btns = {}
     self.lose_message_label = None
     self.win_message_label = None
     self.hud_rect = None
@@ -169,6 +181,10 @@ class GameState(BaseGameState):
     self.enemy_wave_manager = EnemyWaveManager(
         self.enemies, self.enemy_waypoints, self.enemy_img, self.ui_manager, self)
     self.turrets = []
+    self.turret_cooldowns = {
+        "normal_turret": 0,
+        "double_turret": 0
+    }
     self.hud_buttons = []
     self.projectiles = []
 
@@ -184,10 +200,26 @@ class GameState(BaseGameState):
       projectile.update(dt, self.enemies, self.projectiles)
 
   def update_ui(self, dt: float):
-    self.wave_label.set_text(
-        f"Wave {self.enemy_wave_manager.current_wave_number}/{self.enemy_wave_manager.maximum_waves}")
-    self.health_status_bar.percent_full = self.player_resources.base_health / \
-        self.base_health_capacity
+    if self.in_progress:
+      self.wave_label.set_text(
+          f"Wave {self.enemy_wave_manager.current_wave_number}/{self.enemy_wave_manager.maximum_waves}")
+      self.health_status_bar.percent_full = self.player_resources.base_health / \
+          self.base_health_capacity
+
+      # handle turret cooldowns
+      for turret_type, turret_cooldown in self.turret_cooldowns.items():
+        turret_btn = self.turret_btns[turret_type]
+        if turret_cooldown > 0:
+          if turret_btn.is_enabled:
+            turret_btn.disable()
+
+          turret_btn.set_text(str(ceil(turret_cooldown)))
+          self.turret_cooldowns[turret_type] -= dt
+        else:
+          if not turret_btn.is_enabled:
+            turret_btn.enable()
+          turret_btn.set_text("")
+
     self.ui_manager.update(dt)
 
   def draw(self, screen: pygame.Surface):
@@ -224,26 +256,39 @@ class GameState(BaseGameState):
           return
 
         if self.in_progress:
-          if event.ui_element == self.normal_turret_btn:
-            new_turret = NormalTurret(
-                mouse_pos, self.turret_imgs[0], self.projectile_img)
-            self.mouse_active_turret = new_turret
-            self.turrets.append(new_turret)
-          elif event.ui_element == self.double_turret_btn:
-            new_turret = DoubleTurret(
-                mouse_pos, self.turret_imgs[1], self.projectile_img)
-            self.mouse_active_turret = new_turret
-            self.turrets.append(new_turret)
+          if event.ui_element in self.turret_btns.values():
+            for turret_type, turret_btn in self.turret_btns.items():
+              if event.ui_element == turret_btn:
+                new_turret = None
+
+                if turret_type == "normal_turret":
+                  new_turret = NormalTurret(
+                      mouse_pos, self.turret_imgs[turret_type], self.projectile_img)
+
+                elif turret_type == "double_turret":
+                  new_turret = DoubleTurret(
+                      mouse_pos, self.turret_imgs[turret_type], self.projectile_img)
+
+                self.mouse_active_turret = new_turret
+                self.turrets.append(new_turret)
 
       if event.type == pygame.MOUSEBUTTONUP:
         if event.button == 1:  # left mouse btn
           if self.in_progress:
             if self.mouse_active_turret:
-              placed = self.mouse_active_turret.place(mouse_pos, self.turrets, self.map_rect)
+              placed = self.mouse_active_turret.place(
+                  mouse_pos, self.turrets, self.map_rect)
 
               if not placed:
                 if self.mouse_active_turret in self.turrets:
                   self.turrets.remove(self.mouse_active_turret)
+              else:
+                # set up cooldown
+                turret_type = type(self.mouse_active_turret)
+                if turret_type == NormalTurret:
+                  self.turret_cooldowns["normal_turret"] = NormalTurret.cooldown_time
+                elif turret_type == DoubleTurret:
+                  self.turret_cooldowns["double_turret"] = DoubleTurret.cooldown_time
 
               self.mouse_active_turret = None
 
