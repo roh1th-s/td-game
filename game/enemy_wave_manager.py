@@ -20,7 +20,7 @@ class EnemyWaveManager:
     self.time_between_enemy_spawns = 0.7
     self.sub_wave_time = 4.0
     # wave points determine how many enemies can be spawned in the wave
-    self.initial_wave_points = 10
+    self.initial_wave_points = 20
     self.point_increase_per_wave = 10
     # point cost to spawn the enemy (decremented from wave points)
     self.enemy_cost = 1

@@ -145,6 +145,31 @@
 			"shape_corner_radius": "10"
 		}
 	},
+	"#heavy_turret_button": {
+		"colours": {
+			"normal_bg": "#FFFFFF00",
+			"disabled_bg": "#FFFFFF00",
+			"hovered_bg": "#FFFFFF00",
+			"active_bg": "#FFFFFF11",
+			"disabled_text": "#FFFFFF"
+		},
+		"font": {
+			"bold": "1",
+			"size": "33"
+		},
+		"images": {
+			"normal_image": {
+				"path": "data/images/heavy_turret.png"
+			},
+			"hovered_image": {
+				"path": "data/images/heavy_turret.png"
+			}
+		},
+		"misc": {
+			"shape": "rounded_rectangle",
+			"shape_corner_radius": "10"
+		}
+	},
 	"#win_label": {
 		"colours": {
 			"normal_text": "#c4830b",

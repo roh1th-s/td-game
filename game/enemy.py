@@ -21,7 +21,7 @@ explosion_frames = [
 class Enemy():
   def __init__(self, all_enemies: List["Enemy"], waypoints: List[Tuple[int, int]], sprite: pygame.Surface, point_cost: int,
                ui_manager, health_bar_container) -> None:
-    self.move_speed = 100
+    self.move_speed = 150   
     self.point_cost = point_cost
     self.ui_manager = ui_manager
     self.all_enemies = all_enemies

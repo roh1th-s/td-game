@@ -6,10 +6,10 @@ from game.projectile import Projectile
 
 class NormalTurret():
   cooldown_time = 10
-  fire_rate = 1
+  fire_rate = 0.7
   rotate_speed = 5
   radius = 100
-  projectile_speed = 150
+  projectile_speed = 200
   per_bullet_damage = 30
 
   def __init__(self, mouse_pos: Tuple[int, int], img: pygame.Surface, bullet_img: pygame.Surface):

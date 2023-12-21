@@ -11,6 +11,7 @@ from pygame_gui.elements.ui_panel import UIPanel
 from game.enemy import Enemy
 from game.enemy_wave_manager import EnemyWaveManager
 from game.turrets.double_turret import DoubleTurret
+from game.turrets.heavy_turret import HeavyTurret
 from game.turrets.normal_turret import NormalTurret
 from game.projectile import Projectile
 from game.util import grayscale_image
@@ -47,7 +48,9 @@ class GameState(BaseGameState):
         "normal_turret": pygame.transform.scale(pygame.image.load(
             os.path.join("data", "images", "normal_turret.png")), (50, 50)).convert_alpha(),
         "double_turret": pygame.transform.scale(pygame.image.load(
-            os.path.join("data", "images", "double_turret.png")), (50, 50)).convert_alpha()
+            os.path.join("data", "images", "double_turret.png")), (50, 50)).convert_alpha(),
+        "heavy_turret": pygame.transform.scale(pygame.image.load(
+            os.path.join("data", "images", "heavy_turret.png")), (70, 70)).convert_alpha()
     }
 
     # settings
@@ -74,7 +77,8 @@ class GameState(BaseGameState):
     self.turrets: List[NormalTurret] = []
     self.turret_cooldowns: Dict[str, int] = {
         "normal_turret": 0,
-        "double_turret": 0
+        "double_turret": 0,
+        "heavy_turret": 0
     }
     self.hud_buttons = []
     self.projectiles: List[Projectile] = []
@@ -96,13 +100,13 @@ class GameState(BaseGameState):
     self.health_status_bar.percent_full = 100
 
     defense_help_label_rect = pygame.Rect((0, 0), (105, 50))
-    defense_help_label_rect.bottom = -60
+    defense_help_label_rect.bottom = -90
     defense_help_label_rect.right = -30
     self.defense_help_label = UILabel(defense_help_label_rect, text="Defenses:",
                                       object_id="#defense_help_label", anchors={"right": "right", "centery": "centery"})
 
     normal_turret_btn_rect = pygame.Rect((0, 0), (80, 80))
-    normal_turret_btn_rect.bottom = 30
+    normal_turret_btn_rect.bottom = 0
     normal_turret_btn_rect.right = -40
     normal_turret_btn = UIButton(normal_turret_btn_rect, "", object_id="#normal_turret_button",
                                  tool_tip_text="<font size=2><b>Normal turret</b><br><br>Fires a single projectile.</font>",
@@ -112,16 +116,26 @@ class GameState(BaseGameState):
     normal_turret_btn.rebuild()  # hacky method to grayscale disabled image in code
     self.turret_btns["normal_turret"] = normal_turret_btn
 
-    double_turret_btn_rect = normal_turret_btn_rect.copy()
-    double_turret_btn_rect.bottom = 120
-    double_turret_btn = UIButton(double_turret_btn_rect, "", object_id="#double_turret_button",
-                                 tool_tip_text="<font size=2><b>Double Turret</b><br><br>Shoots two projectiles.</font>",
-                                 anchors={"right": "right", "centery": "centery"})
-    double_turret_btn.disabled_image = grayscale_image(
-        double_turret_btn.normal_image)
-    double_turret_btn.rebuild()
-    self.turret_btns["double_turret"] = double_turret_btn
+    heavy_turret_btn_rect = normal_turret_btn_rect.copy()
+    heavy_turret_btn_rect.bottom = 80
+    heavy_turret_btn = UIButton(heavy_turret_btn_rect, "", object_id="#double_turret_button",
+                                tool_tip_text="<font size=2><b>Double Turret</b><br><br>Shoots two projectiles.</font>",
+                                anchors={"right": "right", "centery": "centery"})
+    heavy_turret_btn.disabled_image = grayscale_image(
+        heavy_turret_btn.normal_image)
+    heavy_turret_btn.rebuild()
+    self.turret_btns["double_turret"] = heavy_turret_btn
 
+    heavy_turret_btn_rect = normal_turret_btn_rect.copy()
+    heavy_turret_btn_rect.bottom = 160
+    heavy_turret_btn = UIButton(heavy_turret_btn_rect, "", object_id="#heavy_turret_button",
+                                tool_tip_text="<font size=2><b>Double Turret</b><br><br>Shoots two projectiles.</font>",
+                                anchors={"right": "right", "centery": "centery"})
+    heavy_turret_btn.disabled_image = grayscale_image(
+        heavy_turret_btn.normal_image)
+    heavy_turret_btn.rebuild()
+    self.turret_btns["heavy_turret"] = heavy_turret_btn
+    
     self.end_screen_panel = UIPanel(pygame.Rect((0, 0), self.ui_manager.get_root_container().get_size()),
                                     starting_height=3, object_id="#end_screen_panel")
     self.end_screen_panel.hide()
@@ -183,7 +197,8 @@ class GameState(BaseGameState):
     self.turrets = []
     self.turret_cooldowns = {
         "normal_turret": 0,
-        "double_turret": 0
+        "double_turret": 0,
+        "heavy_turret": 0
     }
     self.hud_buttons = []
     self.projectiles = []
@@ -269,6 +284,10 @@ class GameState(BaseGameState):
                   new_turret = DoubleTurret(
                       mouse_pos, self.turret_imgs[turret_type], self.projectile_img)
 
+                elif turret_type == "heavy_turret":
+                  new_turret = HeavyTurret(
+                      mouse_pos, self.turret_imgs[turret_type], self.projectile_img)
+
                 self.mouse_active_turret = new_turret
                 self.turrets.append(new_turret)
 
@@ -289,6 +308,8 @@ class GameState(BaseGameState):
                   self.turret_cooldowns["normal_turret"] = NormalTurret.cooldown_time
                 elif turret_type == DoubleTurret:
                   self.turret_cooldowns["double_turret"] = DoubleTurret.cooldown_time
+                elif turret_type == HeavyTurret:
+                  self.turret_cooldowns["heavy_turret"] = HeavyTurret.cooldown_time
 
               self.mouse_active_turret = None
 

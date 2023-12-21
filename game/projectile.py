@@ -44,7 +44,6 @@ class Projectile():
 
     if self.should_die:
       all_projectiles.remove(self)
-      # TODO: some effect on projectile hit
 
   def draw(self, screen):
     screen.blit(self.display_image, self.rect.topleft)
